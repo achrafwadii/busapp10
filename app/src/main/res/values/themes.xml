@@ -6,4 +6,9 @@
     </style>
 
     <style name="Theme.Busapp" parent="Base.Theme.Busapp" />
+
+    <style name="Theme.App.Splashscreen" parent="Theme.Busapp">
+
+
+    </style>
 </resources>
