@@ -4,27 +4,30 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/ic_launcher_background"
+    android:background="@android:color/holo_blue_light"
     android:visibility="visible"
     tools:context=".SplashScreen">
 
     <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="400dp"
-        android:layout_height="300dp"
+        android:layout_width="456dp"
+        android:layout_height="347dp"
+        android:layout_margin="-20dp"
         android:layout_marginBottom="-100dp"
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.511"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_launcher_foreground"
+        app:srcCompat="@drawable/bus_white"
         tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
         android:layout_marginTop="20dp"
         android:fontFamily="@font/anton"
         android:text="BusApp"

@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.compose") version "1.6.10"
-
+    id("com.google.gms.google-services")
 
 }
 buildscript {
@@ -12,11 +12,7 @@ buildscript {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 
     }
-    buildscript {
-        dependencies {
-            classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
-        }
-    }
+
 
 }
 
@@ -57,6 +53,9 @@ android {
 
 
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
+    implementation("com.google.firebase:firebase-database-ktx")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

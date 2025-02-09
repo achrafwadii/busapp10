@@ -1,0 +1,15 @@
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here -->
+        <item name="colorPrimary">@color/white</item>
+        <item name="colorPrimaryDark">@android:color/holo_blue_bright</item>
+    </style>
+
+    <!-- Custom Toolbar Style -->
+    <style name="ToolbarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@android:color/transparent</item> <!-- Remove background -->
+        <item name="android:elevation">0dp</item> <!-- Remove shadow -->
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+    </style>
+</resources>

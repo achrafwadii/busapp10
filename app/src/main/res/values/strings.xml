@@ -3,4 +3,6 @@
     <string name="google_map_api_key">AIzaSyCF2f4hsyiMg6yP1IpGSizs8YO316A1oss</string>
     <string name="title_activity_splashactivity">Splashactivity</string>
     <string name="title_activity_splash">splash_activity</string>
+    <string name="navigation_drawer_open">Open</string>
+    <string name="navigation_drawer_close">Close</string>
 </resources>
