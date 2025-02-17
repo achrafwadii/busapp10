@@ -2,4 +2,8 @@
 <resources>
     <color name="darkblue">#141442</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="editTextTextColor">#000000</color>
+    <color name="black">#000000</color>
+    <color name="primaryColor">#2196F3</color> <!-- Black for light mode -->
+
 </resources>

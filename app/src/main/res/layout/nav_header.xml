@@ -26,7 +26,6 @@
         android:id="@+id/headerTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="smiya"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -35,7 +34,6 @@
         android:id="@+id/headerSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="user@bussapp.com"
         android:textColor="@android:color/white"
         android:textSize="14sp" />
 

@@ -8,15 +8,18 @@
     tools:context=".MainActivity">
 
     <!-- Main Content -->
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-        <!-- Toolbar -->
+        android:layout_height="match_parent">
 
         <!-- Map Fragment -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map"
+            class="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
+        <!-- Toolbar -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -24,16 +27,21 @@
             android:background="@android:color/transparent"
             android:elevation="0dp"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
-            app:titleTextColor="@android:color/transparent"/>
+            app:titleTextColor="@android:color/transparent" />
 
+        <!-- Button to show the BottomSheetDialog -->
+        <ImageButton
+            android:id="@+id/showPopupButton"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="700dp"
 
-
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/mapFragment"
-            class="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-    </LinearLayout>
+            android:background="@drawable/baseline_hexagon_24"
+            android:backgroundTint="@color/primaryColor"
+            android:padding="19dp"
+            android:src="@drawable/locationsearch" />
+    </FrameLayout>
 
     <!-- Navigation Drawer -->
     <com.google.android.material.navigation.NavigationView
@@ -43,5 +51,4 @@
         android:layout_gravity="start"
         app:headerLayout="@layout/nav_header"
         app:menu="@menu/nav_menu" />
-
 </androidx.drawerlayout.widget.DrawerLayout>

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.compose") version "1.6.10"
     id("com.google.gms.google-services")
+    alias(libs.plugins.kotlin.compose)
 
 }
 buildscript {
@@ -39,6 +40,12 @@ android {
             )
         }
     }
+    configurations.all {
+        resolutionStrategy {
+            force ("org.jetbrains.kotlin:kotlin-stdlib:2.1.0")
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -48,6 +55,7 @@ android {
     }
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 }
 
@@ -62,6 +70,10 @@ dependencies {
     implementation(libs.androidx.activity)
 
     implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("com.google.maps.android:android-maps-utils:2.3.0") // Pour dessiner des polylines
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0") // Pour appeler l'API Directions
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0") // Convertir JSON en objets Kotlin
 
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -73,6 +85,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore.ktx)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
