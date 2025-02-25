@@ -29,11 +29,16 @@
             app:titleTextColor="@android:color/transparent" />
 
 
-        <Button android:layout_height="60dp"
-            android:layout_width="60dp"
-
+        <!-- GPS Button (Top Right) -->
+        <Button
             android:id="@+id/gpsButton"
-            />
+            android:layout_width="52dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/baseline_gps_fixed_24"
+           />
 
         <!-- Button to show the BottomSheetDialog -->
         <ImageButton

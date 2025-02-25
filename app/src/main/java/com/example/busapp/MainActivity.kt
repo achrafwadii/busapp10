@@ -81,7 +81,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         val drawable = ContextCompat.getDrawable(this, R.drawable.bus) as BitmapDrawable
         val originalBitmap = drawable.bitmap
-        val resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 50, 50, false)
+        val resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 20, 20, false)
 
         val smallMarker = BitmapDrawable(resources, resizedBitmap)
         marker.icon = smallMarker
