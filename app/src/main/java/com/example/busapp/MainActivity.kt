@@ -63,31 +63,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // Initialisation de la carte
         val mapView = findViewById<MapView>(R.id.mapView)
-        mapView.setTileSource(TileSourceFactory.MAPNIK) // Utiliser OpenStreetMap
-        mapView.setMultiTouchControls(true) // Activer le zoom avec les doigts
+        mapView.setTileSource(TileSourceFactory.MAPNIK)
+        mapView.setMultiTouchControls(true)
 
-        // 🔹 Position et zoom sur Guelmim
-        val guelmim = GeoPoint(28.9884, -10.0574) // Coordonnées GPS de Guelmim
+
+        val guelmim = GeoPoint(28.9884, -10.0574)
         val mapController = mapView.controller
-        mapController.setZoom(16.0) // Zoom adapté
+        mapController.setZoom(16.0)
         mapController.setCenter(guelmim)
 
-        // Ajouter un marqueur (optionnel)
+
         val marker = Marker(mapView)
         marker.position = guelmim
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         marker.title = "Guelmim"
         mapView.overlays.add(marker)
-        // Charger l'icône personnalisée et la redimensionner
+
         val drawable = ContextCompat.getDrawable(this, R.drawable.bus) as BitmapDrawable
         val originalBitmap = drawable.bitmap
         val resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 50, 50, false)
 
-// Appliquer l'icône redimensionnée au marqueur
         val smallMarker = BitmapDrawable(resources, resizedBitmap)
         marker.icon = smallMarker
 
-        // ✅ Ajouter le GPS
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
         }
@@ -97,7 +96,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         locationOverlay.enableFollowLocation()
         mapView.overlays.add(locationOverlay)
 
-        // ✅ Ajouter un bouton pour centrer sur la position actuelle
         val gpsButton = findViewById<Button>(R.id.gpsButton)
         gpsButton.setOnClickListener {
             val currentLocation: GeoPoint? = locationOverlay.myLocation
