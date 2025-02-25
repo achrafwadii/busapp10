@@ -28,6 +28,7 @@ class login : AppCompatActivity() {
                     if(it.isSuccessful){
                         val intent2 = Intent(this, MainActivity::class.java)
                         startActivity(intent2)
+                        finish()
                     } else {
                         Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
                     }
@@ -40,10 +41,12 @@ class login : AppCompatActivity() {
         toSignup.setOnClickListener{
             val intent1 = Intent(this, signup::class.java)
             startActivity(intent1)
+
         }
         stay_visitor.setOnClickListener{
             val intent3 = Intent(this, MainActivity::class.java)
             startActivity(intent3)
+            finish()
         }
 
     }

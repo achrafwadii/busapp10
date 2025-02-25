@@ -29,6 +29,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
     }
 
     buildTypes {
@@ -61,6 +63,15 @@ android {
 
 
 dependencies {
+    implementation ("org.osmdroid:osmdroid-android:6.1.16") // OSMDroid library
+    implementation ("org.osmdroid:osmdroid-mapsforge:6.1.16") // Optional: For offline maps
+
+
+
+// Optional: For GeoPackage support
+
+
+
     implementation(platform("com.google.firebase:firebase-bom:33.9.0"))
     implementation("com.google.firebase:firebase-database-ktx")
 
@@ -69,11 +80,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
 
-    implementation("com.google.android.gms:play-services-maps:19.0.0")
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
-    implementation ("com.google.maps.android:android-maps-utils:2.3.0") // Pour dessiner des polylines
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0") // Pour appeler l'API Directions
-    implementation ("com.squareup.retrofit2:converter-gson:2.9.0") // Convertir JSON en objets Kotlin
+
 
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.lifecycle.runtime.ktx)

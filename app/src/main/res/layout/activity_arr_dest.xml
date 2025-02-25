@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@android:color/holo_blue_light"
+    android:background="@drawable/rounded_background"
     >
 
 
@@ -16,25 +17,22 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Source"
         android:textSize="16sp"
         android:textColor="@color/black" />
 
+    <!-- Destination Input -->
     <EditText
         android:id="@+id/sourceInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_textview"
         android:hint="Enter source location"
-        android:padding="8dp"
-        android:background="@android:color/white"
         android:minHeight="48dp"
-        />
+        android:padding="8dp" />
 
-    <!-- Destination Input -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Destination"
         android:textSize="16sp"
         android:textColor="@color/black"
         android:layout_marginTop="16dp" />
@@ -43,9 +41,10 @@
         android:id="@+id/destinationInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/rounded_textview"
+
         android:hint="Enter destination location"
         android:padding="8dp"
-        android:background="@android:color/white"
         android:minHeight="48dp"
         /> <!-- Use a custom background -->
 
@@ -57,23 +56,27 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="24dp"
-        android:gravity="end">
+        android:gravity="center_horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/cancelButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_marginEnd="16dp"
             android:text="Cancel"
-            android:textColor="@color/black" />
+            android:textColor="@android:color/black"
+            android:backgroundTint="@android:color/white"
 
-        <Button
+            android:icon="@android:drawable/ic_menu_close_clear_cancel"
+           />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/searchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:text="Search"
-            android:textColor="@color/primaryColor" />
+            android:textColor="@android:color/white"
+            android:backgroundTint="@color/primaryColor"
+          />
     </LinearLayout>
 </LinearLayout>

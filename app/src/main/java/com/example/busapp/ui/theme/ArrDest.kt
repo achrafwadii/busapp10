@@ -1,6 +1,8 @@
 package com.example.busapp.ui.theme
 
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -12,10 +14,15 @@ class ArrDest : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_arr_dest)
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
+
+        val mainLayout = findViewById<LinearLayout>(R.id.main)
+
+
+// Dynamically change size
+        val params = mainLayout.layoutParams
+        params.width = 500 // Set custom width in pixels
+        params.height = LinearLayout.LayoutParams.WRAP_CONTENT
+        mainLayout.layoutParams = params
+
     }
 }

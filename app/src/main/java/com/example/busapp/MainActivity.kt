@@ -1,64 +1,55 @@
 package com.example.busapp
 
+
+import android.Manifest
+import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.location.Location
+
+
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.config.Configuration
+
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.gms.common.api.Response
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.navigation.NavigationView
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import com.google.android.gms.maps.model.PolylineOptions
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
-    private var mGoogleMap: GoogleMap? = null
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var fauth :FirebaseAuth
     private lateinit var fstore : FirebaseFirestore
 
-    // Handle Map Ready
-    override fun onMapReady(googleMap: GoogleMap) {
-        mGoogleMap = googleMap
-        googleMap.uiSettings.isRotateGesturesEnabled = false
-
-        // Define the bounding box for Guelmim-Oued Noun
-        val guelmim = LatLng(28.98, -10.07)
-        mGoogleMap?.addMarker(MarkerOptions().position(guelmim).title("Guelmim"))
-        mGoogleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(guelmim, 12f))
 
 
 
 
-
-    }
-
-
-
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -66,6 +57,59 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         setContentView(R.layout.activity_main)
         fauth = FirebaseAuth.getInstance()
         fstore = FirebaseFirestore.getInstance()
+        // Configuration de OSMDroid
+
+        Configuration.getInstance().load(applicationContext, getSharedPreferences("osm", MODE_PRIVATE))
+
+        // Initialisation de la carte
+        val mapView = findViewById<MapView>(R.id.mapView)
+        mapView.setTileSource(TileSourceFactory.MAPNIK) // Utiliser OpenStreetMap
+        mapView.setMultiTouchControls(true) // Activer le zoom avec les doigts
+
+        // 🔹 Position et zoom sur Guelmim
+        val guelmim = GeoPoint(28.9884, -10.0574) // Coordonnées GPS de Guelmim
+        val mapController = mapView.controller
+        mapController.setZoom(16.0) // Zoom adapté
+        mapController.setCenter(guelmim)
+
+        // Ajouter un marqueur (optionnel)
+        val marker = Marker(mapView)
+        marker.position = guelmim
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+        marker.title = "Guelmim"
+        mapView.overlays.add(marker)
+        // Charger l'icône personnalisée et la redimensionner
+        val drawable = ContextCompat.getDrawable(this, R.drawable.bus) as BitmapDrawable
+        val originalBitmap = drawable.bitmap
+        val resizedBitmap = Bitmap.createScaledBitmap(originalBitmap, 50, 50, false)
+
+// Appliquer l'icône redimensionnée au marqueur
+        val smallMarker = BitmapDrawable(resources, resizedBitmap)
+        marker.icon = smallMarker
+
+        // ✅ Ajouter le GPS
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1)
+        }
+
+        val locationOverlay = MyLocationNewOverlay(GpsMyLocationProvider(this), mapView)
+        locationOverlay.enableMyLocation()
+        locationOverlay.enableFollowLocation()
+        mapView.overlays.add(locationOverlay)
+
+        // ✅ Ajouter un bouton pour centrer sur la position actuelle
+        val gpsButton = findViewById<Button>(R.id.gpsButton)
+        gpsButton.setOnClickListener {
+            val currentLocation: GeoPoint? = locationOverlay.myLocation
+            if (currentLocation != null) {
+                val userGeoPoint = GeoPoint(currentLocation.latitude, currentLocation.longitude)
+                mapView.controller.animateTo(userGeoPoint)
+                mapView.controller.setZoom(18.0)
+            } else {
+                Toast.makeText(this, "Localisation non disponible", Toast.LENGTH_SHORT).show()
+            }
+        }
+
 
 
 
@@ -75,11 +119,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             showRouteSelectorPopup()
         }
 
-
-
-        // Initialize the map fragment
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
 
         // Initialize Toolbar
         val toolbar = findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
@@ -104,6 +143,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         // Ensure the hamburger icon is visible
         toggle.isDrawerIndicatorEnabled = true  // 🔹 Ensures the hamburger icon appears
         supportActionBar?.setDisplayHomeAsUpEnabled(false) // 🔹 Removes back button
+
+        val headerView: View = navigationView.getHeaderView(0)
+        val user = fauth.currentUser
+        val nomCompletTxtV :TextView = headerView.findViewById(R.id.headerTitle)
+        val emailTxtV : TextView = headerView.findViewById(R.id.headerSubtitle)
+        if (user != null) {
+            val userId = user.uid
+            val docref = fstore.collection("users").document(userId)
+            docref.addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Toast.makeText(this,"${error.message}" , Toast.LENGTH_SHORT).show()
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    val nom = snapshot.getString("nom").toString()
+                    val prenom = snapshot.getString("prenom").toString()
+                    val email = snapshot.getString("email").toString()
+                    nomCompletTxtV.text = nom +" "+prenom
+                    emailTxtV.text = email
+                }
+            } }
 
 
 
@@ -153,30 +214,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     // Handle Menu Item Clicks
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
 
-        val user = fauth.currentUser
-        val nomCompletTxtV :TextView = findViewById(R.id.headerTitle)
-        val emailTxtV : TextView = findViewById(R.id.headerSubtitle)
-        if (user != null) {
-            val userId = user.uid
-            val docref = fstore.collection("users").document(userId)
-            docref.addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    Toast.makeText(this,"${error.message}" , Toast.LENGTH_SHORT).show()
-                    return@addSnapshotListener
-                }
 
-                if (snapshot != null && snapshot.exists()) {
-                    val nom = snapshot.getString("nom").toString()
-                    val prenom = snapshot.getString("prenom").toString()
-                    val email = snapshot.getString("email").toString()
-                    nomCompletTxtV.text = nom +" "+prenom
-                    emailTxtV.text = email
-                }
-            } }
         when (item.itemId) {
 
             R.id.nav_home -> {
-                Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show()
+
+
             }
             R.id.nav_routes -> {
                 Toast.makeText(this, "Routes", Toast.LENGTH_SHORT).show()
@@ -188,11 +231,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 Toast.makeText(this, "Rate Us", Toast.LENGTH_SHORT).show()
             }
             R.id.nav_profile -> {
+                val intent = Intent(this, ProfileActivity::class.java)
+                startActivity(intent)
 
             }
             R.id.nav_logout -> {
-                Toast.makeText(this, "Logout", Toast.LENGTH_SHORT).show()
+                FirebaseAuth.getInstance().signOut()
+                // Redirect to Login Activity (or close the app)
+                val intent = Intent(this, login::class.java)
+                startActivity(intent)
+                finish()  // Close the MainActivity after logging out
+                Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show()
             }
+
         }
         drawerLayout.closeDrawer(GravityCompat.START)
         return true
