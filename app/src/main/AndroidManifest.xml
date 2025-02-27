@@ -33,6 +33,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".AutoCom"
+            android:exported="false" />
+
+
+        <activity
             android:name=".login"
             android:exported="false" />
         <activity

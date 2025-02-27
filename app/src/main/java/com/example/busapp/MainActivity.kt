@@ -1,6 +1,8 @@
 package com.example.busapp
 
 
+import NominatimApi
+import NominatimResult
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -9,6 +11,7 @@ import android.location.Location
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -37,6 +40,15 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import org.osmdroid.bonuspack.routing.OSRMRoadManager
+import org.osmdroid.bonuspack.routing.Road
+import org.osmdroid.bonuspack.routing.RoadManager
+import org.osmdroid.views.overlay.Polyline
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -44,6 +56,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var fauth :FirebaseAuth
     private lateinit var fstore : FirebaseFirestore
+    private lateinit var mapView: MapView
+
 
 
 
@@ -57,6 +71,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         fauth = FirebaseAuth.getInstance()
         fstore = FirebaseFirestore.getInstance()
+        mapView = findViewById(R.id.mapView)
+
         // Configuration de OSMDroid
 
         Configuration.getInstance().load(applicationContext, getSharedPreferences("osm", MODE_PRIVATE))
@@ -97,6 +113,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mapView.overlays.add(locationOverlay)
 
         val gpsButton = findViewById<Button>(R.id.gpsButton)
+        gpsButton.setBackgroundColor(Color.parseColor("#33b5e5")) // Set background color
         gpsButton.setOnClickListener {
             val currentLocation: GeoPoint? = locationOverlay.myLocation
             if (currentLocation != null) {
@@ -171,6 +188,71 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
+    private fun geocodeAddress(address: String, callback: (GeoPoint?) -> Unit) {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://nominatim.openstreetmap.org/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val nominatimApi = retrofit.create(NominatimApi::class.java)
+
+        nominatimApi.search(address).enqueue(object : Callback<List<NominatimResult>> {
+            override fun onResponse(
+                call: Call<List<NominatimResult>>,
+                response: Response<List<NominatimResult>>
+            ) {
+                if (response.isSuccessful && response.body() != null) {
+                    val results = response.body()!!
+                    if (results.isNotEmpty()) {
+                        val firstResult = results[0]
+                        val geoPoint = GeoPoint(firstResult.lat, firstResult.lon)
+                        callback(geoPoint)
+                    } else {
+                        callback(null)
+                    }
+                } else {
+                    callback(null)
+                }
+            }
+
+            override fun onFailure(call: Call<List<NominatimResult>>, t: Throwable) {
+                callback(null)
+            }
+        })
+    }
+
+
+
+    private var roadOverlay: Polyline? = null // Stocker l'itinéraire actuel
+
+    private fun drawRoute(source: GeoPoint, destination: GeoPoint) {
+        val roadManager = OSRMRoadManager(this, "MyAppUserAgent")
+        val waypoints = arrayListOf(source, destination)
+
+        Thread {
+            val road = roadManager.getRoad(waypoints)
+            runOnUiThread {
+                if (road.mStatus != Road.STATUS_OK) {
+                    Toast.makeText(this, "Impossible de récupérer l'itinéraire", Toast.LENGTH_SHORT).show()
+                } else {
+                    roadOverlay?.let {
+                        mapView.overlays.remove(it)
+                    }
+
+                    roadOverlay = RoadManager.buildRoadOverlay(road).apply {
+                        outlinePaint.color = Color.RED
+                        outlinePaint.strokeWidth = 8f
+                    }
+                    mapView.overlays.add(roadOverlay)
+                    mapView.invalidate()
+                }
+            }
+        }.start()
+    }
+
+
+
+
 
     private fun showRouteSelectorPopup() {
         // Inflate the layout for the BottomSheetDialog
@@ -192,14 +274,41 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             dialog.dismiss() // Close the dialog
         }
 
-        // Handle Search button click
-        searchButton.setOnClickListener {
-            val source = sourceInput.text.toString()
-            val destination = destinationInput.text.toString()
+        fun isAddressInGuelmimOuedNoun(lat: Double, lon: Double): Boolean {
+            val minLat = 28.9  // Limite sud
+            val maxLat = 29.6  // Limite nord
+            val minLon = -10.3 // Limite ouest
+            val maxLon = -9.2  // Limite est
 
-            // Dismiss the dialog after searching
-            dialog.dismiss()
+            return lat in minLat..maxLat && lon in minLon..maxLon
         }
+
+        searchButton.setOnClickListener {
+            val sourceText = sourceInput.text.toString()
+            val destinationText = destinationInput.text.toString()
+
+            if (sourceText.isNotEmpty() && destinationText.isNotEmpty()) {
+                geocodeAddress(sourceText) { sourceGeo ->
+                    if (sourceGeo != null && isAddressInGuelmimOuedNoun(sourceGeo.latitude, sourceGeo.longitude)) {
+                        geocodeAddress(destinationText) { destGeo ->
+                            if (destGeo != null && isAddressInGuelmimOuedNoun(destGeo.latitude, destGeo.longitude)) {
+                                drawRoute(sourceGeo, destGeo)
+                                dialog.dismiss()
+                            } else {
+                                Toast.makeText(this, "Adresse de destination hors de Guelmim-Oued Noun", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    } else {
+                        Toast.makeText(this, "Adresse source hors de Guelmim-Oued Noun", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                Toast.makeText(this, "Entrez une source et une destination", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
+
     }
 
 
@@ -256,6 +365,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             super.onBackPressed()
         }
     }
+
 
 
 }
