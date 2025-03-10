@@ -7,6 +7,21 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Your MapView or other content -->
+
+        <include
+            android:id="@+id/bottom_sheet"
+            layout="@layout/bottom_sheet_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
     <!-- Main Content -->
     <FrameLayout
         android:layout_width="match_parent"
