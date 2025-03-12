@@ -1,4 +1,4 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent">
     <!--  RecyclerView pour afficher la liste des itinéraires  -->
-    <androidx.recyclerview.widget.RecyclerView android:id="@+id/recyclerItineraires" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="8dp"/>
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/recyclerItineraire" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="8dp"/>
 </RelativeLayout>

@@ -83,4 +83,17 @@
             android:backgroundTint="@color/primaryColor"
             />
     </LinearLayout>
+    <!-- Dans votre layout activity_arr_dest.xml -->
+    <ListView
+        android:id="@+id/listViewResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:background="@drawable/listview_background"
+        android:elevation="4dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginHorizontal="16dp"
+        android:padding="2dp"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
 </LinearLayout>

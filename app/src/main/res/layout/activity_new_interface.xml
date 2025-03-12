@@ -1,13 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/activity_new_interface.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
 
     <!-- Titre ou en-tête (optionnel) -->
     <TextView
-        android:id="@+id/textViewTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Liste des itinéraires"
@@ -18,10 +17,9 @@
 
     <!-- RecyclerView pour afficher les itinéraires -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerItineraires"
+        android:id="@+id/recyclerItineraire"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_height="match_parent"
         android:clipToPadding="false"
         android:paddingBottom="16dp" />
 </LinearLayout>

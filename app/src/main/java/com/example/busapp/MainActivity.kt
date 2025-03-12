@@ -7,7 +7,6 @@ import NominatimResult
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
-import android.location.Location
 
 
 import android.content.Intent
@@ -18,8 +17,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ListView
 import android.widget.TextView
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
@@ -35,11 +36,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
@@ -258,6 +260,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
+    @SuppressLint("MissingInflatedId")
     private fun showRouteSelectorPopup() {
         // Inflate the layout for the BottomSheetDialog
         val view = LayoutInflater.from(this).inflate(R.layout.activity_arr_dest, null)
@@ -272,6 +275,118 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val destinationInput = view.findViewById<EditText>(R.id.destinationInput)
         val cancelButton = view.findViewById<Button>(R.id.cancelButton)
         val searchButton = view.findViewById<Button>(R.id.searchButton)
+        val listViewResult =view.findViewById<ListView>(R.id.listViewResult)
+        val db =Firebase.firestore
+        val originalArretsList = mutableListOf<String>()
+        val displayedArretsList = mutableListOf<String>()
+        val adapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,displayedArretsList)
+        listViewResult.adapter = adapter
+
+        // Fonction pour récupérer les arrêts depuis Firestore
+        fun loadBusStops() {
+            db.collection("pointarret") // Remplace par ton nom de collection
+                .get()
+                .addOnSuccessListener { documents ->
+                    originalArretsList.clear() // Nettoyer avant d'ajouter les nouvelles données
+                    for (document in documents) {
+                        val source = document.getString("adresse")
+                        if (!source.isNullOrEmpty()) originalArretsList.add(source)
+
+                    }
+                    displayedArretsList.clear()
+                    displayedArretsList.addAll(originalArretsList)
+
+                    adapter.notifyDataSetChanged() // Mettre à jour la liste
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Erreur de chargement: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+        // Charger les arrêts au lancement
+        loadBusStops()
+        fun updateList(query: String) {
+            if (query.isNotEmpty()) {
+                val filteredCities = originalArretsList.filter { it.contains(query, ignoreCase = true) }
+                displayedArretsList.clear()
+                if (filteredCities.isNotEmpty()) {
+                    displayedArretsList.addAll(filteredCities)
+                } else {
+                    displayedArretsList.add("Aucun résultat trouvé") // Message si aucun résultat
+                }
+                adapter.notifyDataSetChanged()
+                listViewResult.visibility = View.VISIBLE // Afficher la liste
+            } else {
+                listViewResult.visibility = View.GONE // Masquer la liste si le champ est vide
+            }
+        }
+        // Recherche en temps réel pour source
+        sourceInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (sourceInput.hasFocus()) { // Vérifier si sourceInput a le focus
+                    updateList(s.toString())
+                } else {
+                    listViewResult.visibility = View.GONE // Masquer la liste si sourceInput n'a pas le focus
+                }
+            }
+        })
+
+        // Recherche en temps réel pour destination
+        destinationInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if (destinationInput.hasFocus()) { // Vérifier si destinationInput a le focus
+                    updateList(s.toString())
+                } else {
+                    listViewResult.visibility = View.GONE // Masquer la liste si destinationInput n'a pas le focus
+                }
+            }
+        })
+
+
+
+        // Écouteur de focus pour sourceInput
+        sourceInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                // Effacer la liste actuelle
+                displayedArretsList.clear()
+                adapter.notifyDataSetChanged()
+
+                // Mettre à jour la liste si le champ source contient du texte
+                if (sourceInput.text.isNotEmpty()) {
+                    updateList(sourceInput.text.toString())
+                } else {
+                    listViewResult.visibility = View.GONE // Masquer la liste si le champ est vide
+                }
+            }
+        }
+        // Écouteur de focus pour destinationInput
+        destinationInput.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                // Effacer la liste actuelle
+                displayedArretsList.clear()
+                adapter.notifyDataSetChanged()
+
+                // Mettre à jour la liste si le champ destination contient du texte
+                if (destinationInput.text.isNotEmpty()) {
+                    updateList(destinationInput.text.toString())
+                } else {
+                    listViewResult.visibility = View.GONE // Masquer la liste si le champ est vide
+                }
+            }
+        }
+        // Remplir les champs quand on clique sur une ville
+        listViewResult.setOnItemClickListener { _, _, position, _ ->
+            val selectedCity = listViewResult.adapter.getItem(position) as String
+            if (sourceInput.hasFocus()) {
+                sourceInput.setText(selectedCity)
+            } else if (destinationInput.hasFocus()) {
+                destinationInput.setText(selectedCity)
+            }
+        }
+
 
         // Handle Cancel button click
         cancelButton.setOnClickListener {
@@ -279,15 +394,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         // Handle Search button click
+        // Dans votre activité principale
         searchButton.setOnClickListener {
             val sourceText = sourceInput.text.toString()
             val destinationText = destinationInput.text.toString()
 
             if (sourceText.isNotEmpty() && destinationText.isNotEmpty()) {
-                // Show the second BottomSheet with the results
                 val bottomSheet = BottomSheetResult(sourceText, destinationText)
                 bottomSheet.show(supportFragmentManager, "bottomSheetTag")
-                dialog.dismiss() // Close the first BottomSheet
             } else {
                 Toast.makeText(this, "Entrez une source et une destination", Toast.LENGTH_SHORT).show()
             }

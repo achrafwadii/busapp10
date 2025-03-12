@@ -29,7 +29,7 @@ class item_itineraire : AppCompatActivity() {
         Log.d("Intent", "Source : $source, Destination : $destination")
         // Initialiser RecyclerView
         // Dans onCreate()
-        recyclerView = findViewById(R.id.recyclerItineraires)
+        recyclerView = findViewById(R.id.recyclerItineraire)
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = ItineraireAdapter(itineraireList)
         recyclerView.adapter = adapter
